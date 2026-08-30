@@ -16,9 +16,13 @@ fn main() {
 
 fn run(config: Config) -> Result<(), Box<dyn Error>> {
     let ds_image = downscale(&config.path)?;
-    DynamicImage::save(&ds_image, config.path)?;
+    DynamicImage::save(&ds_image, change_file_name(&config.path))?;
     
     Ok(())
+}
+
+fn change_file_name(file_name: &str) -> String {
+    file_name.replacen(".", "_ds.", 1)
 }
 
 #[derive(Parser)]

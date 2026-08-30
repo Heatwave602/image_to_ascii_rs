@@ -12,7 +12,7 @@ pub fn downscale(
   let image = ImageReader::open(path)?.decode()?.to_rgb16();
   let new_height = compute_new_height(&image);
 
-  let ds_image = DynamicImage::resize(
+  let ds_image = DynamicImage::resize_exact(
     &DynamicImage::ImageRgb16(image),
     BASE_WIDTH,
     new_height,
@@ -25,10 +25,26 @@ pub fn downscale(
 fn compute_new_height(
   image: &ImageBuffer<Rgb<u16>, Vec<u16>>,
 ) -> u32 {
-  let f32_width   = image.width() as f32;
-  let f32_height  = image.height() as f32;
-  assert!(f32_width != 0. && f32_height != 0.);
+  let (w, h) = (image.width() as f32,
+                          image.height() as f32);
+  assert!(w != 0. && h != 0.);
 
-  let ar = f32_width/f32_height;
+  let ar = w/h;
   ((BASE_WIDTH as f32 / ar) / 2.) as u32
+}
+
+#[cfg(test)]
+mod tests {
+  use super::*;
+
+  #[test]
+  fn correct_downscaled_dimensions() {
+    let path = "rust-logo.png";
+    let DynamicImage::ImageRgb16(image) = 
+      downscale(path).unwrap() else {
+        panic!("Expecting an Rgb16 image");
+    };
+
+    assert_eq!(image.dimensions(), (BASE_WIDTH, 40));
+  }
 }
