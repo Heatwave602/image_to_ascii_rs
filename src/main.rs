@@ -7,7 +7,7 @@ mod ascii_converter;
 use resizer::downscale;
 use ascii_converter::map_to_ascii;
 
-use image::{DynamicImage, GenericImageView};
+use image::DynamicImage;
 
 fn main() {
     let config = Config::parse();
@@ -22,16 +22,16 @@ fn run(config: Config) -> Result<(), Box<dyn Error>> {
     let ds_image = downscale(&config.path)?;
     DynamicImage::save(&ds_image, change_file_name(&config.path))?;
     
-    let gs_image = ds_image.to_luma8();
-    assert!(gs_image.as_raw().len() == 3200);
-    for (i, px) in gs_image.pixels().enumerate() {
-        println!("Pixel {i}: {px:?}");
-    }
+    // let gs_image = ds_image.to_luma8();
+    // assert!(gs_image.as_raw().len() == 3200);
+    // for (i, px) in gs_image.pixels().enumerate() {
+    //     println!("Pixel {i}: {px:?}");
+    // }
     
-    let it = ds_image.pixels().next();
-    for ascii in map_to_ascii(ds_image.pixels()){
-        println!("{ascii}");
+    for c in map_to_ascii(&ds_image){
+        print!("{c}");
     };
+    println!();
     
     Ok(())
 }
