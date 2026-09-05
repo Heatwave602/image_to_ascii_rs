@@ -1,13 +1,9 @@
 use clap::Parser;
 use std::error::Error;
 
-mod resizer;
-mod ascii_converter;
+use image::{DynamicImage, ImageReader};
 
-use resizer::downscale;
-use ascii_converter::map_to_ascii;
-
-use image::DynamicImage;
+use image_to_ascii::{resize_image, map_to_ascii};
 
 fn main() {
     let config = Config::parse();
@@ -18,20 +14,17 @@ fn main() {
 }
 
 fn run(config: Config) -> Result<(), Box<dyn Error>> {
-    //image downscale
-    let ds_image = downscale(&config.path)?;
+    let path = &config.path;
+    let image = ImageReader::open(path).unwrap()
+      .decode().unwrap()
+      .to_rgb16();
+
+    let ds_image = resize_image(image);
     DynamicImage::save(&ds_image, change_file_name(&config.path))?;
-    
-    // let gs_image = ds_image.to_luma8();
-    // assert!(gs_image.as_raw().len() == 3200);
-    // for (i, px) in gs_image.pixels().enumerate() {
-    //     println!("Pixel {i}: {px:?}");
-    // }
     
     for c in map_to_ascii(&ds_image){
         print!("{c}");
     };
-    println!();
     
     Ok(())
 }

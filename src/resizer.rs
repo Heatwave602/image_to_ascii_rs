@@ -1,25 +1,22 @@
-use std::error::Error;
 
-use image::{DynamicImage, ImageBuffer, ImageReader};
+use image::{DynamicImage, ImageBuffer};
+use image::ImageReader;
 use image::imageops::FilterType;
 use image::Rgb;
 
 const BASE_WIDTH: u32 = 80;
 
-pub fn downscale(
-  path: &str,
-) -> Result<DynamicImage, Box<dyn Error>> {
-  let image = ImageReader::open(path)?.decode()?.to_rgb16();
+pub fn resize(
+  image: ImageBuffer<Rgb<u16>, Vec<u16>>,
+) -> DynamicImage {
   let new_height = compute_new_height(&image);
 
-  let ds_image = DynamicImage::resize_exact(
+  DynamicImage::resize_exact(
     &DynamicImage::ImageRgb16(image),
     BASE_WIDTH,
     new_height,
     FilterType::Lanczos3,
-  );
-
-  Ok(ds_image)
+  )
 }
 
 fn compute_new_height(
@@ -40,8 +37,12 @@ mod tests {
   #[test]
   fn correct_downscaled_dimensions() {
     let path = "rust-logo.png";
+    let image = 
+    ImageReader::open(path).unwrap()
+      .decode().unwrap()
+      .to_rgb16();
     let DynamicImage::ImageRgb16(image) = 
-      downscale(path).unwrap() else {
+      resize(image) else {
         panic!("Expecting an Rgb16 image");
     };
 
