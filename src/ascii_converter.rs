@@ -5,7 +5,7 @@ type LumaU8 = Luma<u8>;
 
 const ASCII: &str = " .-=+*x#$&X@";
 
-pub fn convert_to_ascii(image: &DynamicImage) -> impl Iterator<Item = char> {
+pub fn map_to_ascii(image: &DynamicImage) -> Vec<char> {
   let gs = image.to_luma8();
   let w = image.width();
   let pxs = gs.pixels();
@@ -21,7 +21,7 @@ pub fn convert_to_ascii(image: &DynamicImage) -> impl Iterator<Item = char> {
           (count, vec)
     }
   );
-  ascii.into_iter()
+  ascii
 }
 
 fn to_ascii_luma(px: &LumaU8) -> char {

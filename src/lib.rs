@@ -1,17 +1,21 @@
-use image::{DynamicImage, ImageBuffer};
+use image::ImageReader;
 
 mod resizer;
-mod ascii_converter;
-
 use resizer::resize;
-use ascii_converter::convert_to_ascii;
 
-type ImageBuf = ImageBuffer<image::Rgb<u16>, Vec<u16>>;
+mod ascii_converter;
+use ascii_converter::map_to_ascii;
 
-pub fn resize_image(image: ImageBuf) -> DynamicImage {
-  resize(image)
-}
+use std::error::Error;
+type Result<T> = std::result::Result<T, Box<dyn Error>>;
 
-pub fn map_to_ascii(image: &DynamicImage) -> impl Iterator<Item = char> {
-  convert_to_ascii(image)
+pub fn convert_to_ascii(image_path: &str) -> Result<impl Iterator<Item = char>> {
+  let image = 
+  ImageReader::open(image_path)
+    .unwrap()
+    .decode()?;
+
+  let ds_image = resize(&image);
+
+  Ok(map_to_ascii(&ds_image).into_iter())
 }
